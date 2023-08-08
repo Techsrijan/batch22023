@@ -1,4 +1,4 @@
-num=int(input("enter the any no"))
+num=int(input("enter the any  3 digit number no"))
 sum=0
 orig=num
 while num>0:
