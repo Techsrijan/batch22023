@@ -20,13 +20,20 @@ def openFile():
     for data in x:
         #print(data)
         txt.insert(INSERT,data)
+
+def saveFile():
+    fp=filedialog.asksaveasfile(mode='w')
+    data=txt.get(1.0,END)
+    fp.write(data)
+
 root=Tk()
 
 txt=Text(root,wrap=WORD,selectbackground='red')
 #txt.pack(fill=BOTH,expand=1)
 txt.pack()
 
-
+btn5=Button(root, text="Save As",command=saveFile)
+btn5.pack()
 btn4=Button(root, text="color",command=opencolor)
 btn4.pack()
 btn3=Button(root, text="open file",command=openFile)
