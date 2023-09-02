@@ -1,0 +1,12 @@
+import winsound
+winsound.Beep(423,1000)
+winsound.Beep(448,1000)
+winsound.Beep(475,1000)
+winsound.Beep(503,1000)
+winsound.Beep(533,1000)
+winsound.Beep(565,1000)
+winsound.Beep(599,1000)
+winsound.Beep(634,1000)
+winsound.Beep(672,1000)
+winsound.Beep(712,1000)
+winsound.Beep(755,1000)
