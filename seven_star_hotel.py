@@ -1,6 +1,7 @@
 from tkinter import *
 import pymysql
 from tkinter import messagebox
+from tkinter import ttk
 
 taz=Tk()
 h=taz.winfo_screenheight()
@@ -8,6 +9,8 @@ w=taz.winfo_screenwidth()
 #print(h,w)
 taz.title("Seven Star Hotel")
 
+# ========mainTreeView======================
+tazTV = ttk.Treeview(height=10, columns=('Item Name''Rate','Type'))
 ##### remove all widget #########
 def remove_all_widgets():
     global taz
@@ -25,12 +28,197 @@ def main_heading():
                 bg="red", fg="black", font=("Comic Sans Ms", "40", "bold"))
     lab.grid(row=0, column=0,columnspan=6)
 
+########## def back ######
+def backbutton():
+    remove_all_widgets()
+    main_heading()
+    welcomewindow()
+
+
+
+####### OnDoubleClick ######
+def OnDoubleClick(event):
+    item = tazTV.selection()
+    itemNameVar1 = tazTV.item(item, "text")
+    item_detail = tazTV.item(item, "values")
+    #print(itemNameVar1, item_detail)
+    itemnameVar.set(itemNameVar1)
+    itemrateVar.set(item_detail[0])
+    itemTypeVar.set(item_detail[1])
+#### getIteminTreeView() ####
+
+def getIteminTreeView():
+    # to delete already inserted item
+    records = tazTV.get_children()
+
+    for element in records:
+        tazTV.delete(element)
+
+    # insert data in treeview
+    conn = pymysql.connect(host="localhost", user="root", db="flower")
+    mycursor = conn.cursor(pymysql.cursors.DictCursor)
+    query = "select * from item_list"
+    mycursor.execute(query)
+    data = mycursor.fetchall()
+    print(data)
+    for row in data:
+        tazTV.insert('', 'end', text=row['item_name'], values=(row["item_rate"],
+                                                               row["item_type"]))
+    conn.close()
+
+######## update item ######
+def updateItem():
+    if itemnameVar.get()=='' or itemrateVar.get()=='' or itemTypeVar.get()=='':
+        messagebox.showerror(message="Please Fill all Details")
+    else:
+        item_name=itemnameVar.get()
+        item_rate=itemrateVar.get()
+        item_type=itemTypeVar.get()
+        dbconnect()
+        sqlup="update item_list set item_rate=%s, item_type=%s where item_name=%s"
+        val=(item_rate,item_type,item_name)
+        mycursor.execute(sqlup, val)
+        con.commit()
+        con.close()
+        messagebox.showinfo(message="Item Updated Successfully")
+        itemnameVar.set('')
+        itemrateVar.set('')
+        itemTypeVar.set('')
+        getIteminTreeView()
+
+######### add item #####
+
+def addItem():
+
+    if itemnameVar.get()=='' or itemrateVar.get()=='' or itemTypeVar.get()=='':
+        messagebox.showerror(message="Please Fill all Details")
+    else:
+        item_name=itemnameVar.get().strip().upper()
+        item_rate=itemrateVar.get().strip()
+        item_type=itemTypeVar.get().strip()
+        dbconnect()
+        sqlins="insert into item_list(item_name,item_rate,item_type)values(%s,%s,%s)"
+        val=(item_name,item_rate,item_type)
+        mycursor.execute(sqlins, val)
+        con.commit()
+        con.close()
+        messagebox.showinfo(message="Item Saved Successfully")
+        itemnameVar.set('')
+        itemrateVar.set('')
+        itemTypeVar.set('')
+        getIteminTreeView()
+###### delete item ######
+
+def deleteItem():
+    if itemnameVar.get()=='' or itemrateVar.get()=='' or itemTypeVar.get()=='':
+        messagebox.showerror(message="Please Fill all Details")
+    else:
+        item_name=itemnameVar.get()
+        item_rate=itemrateVar.get()
+        item_type=itemTypeVar.get()
+        dbconnect()
+        sqldel="delete from item_list where item_name=%s and item_rate=%s and item_type=%s"
+        val = (item_name, item_rate, item_type)
+        mycursor.execute(sqldel, val)
+        con.commit()
+        con.close()
+        messagebox.showinfo(message="Item Deleted Successfully")
+        itemnameVar.set('')
+        itemrateVar.set('')
+        itemTypeVar.set('')
+        getIteminTreeView()
+
+############add item ############
+
+itemnameVar=StringVar()
+itemrateVar=StringVar()
+itemTypeVar=StringVar()
+def additemwindow():
+    remove_all_widgets()
+    main_heading()
+    welcomeitemLabel = Label(taz, text="Item Details", font="Arial 20")
+    welcomeitemLabel.grid(row=1, column=1, padx=(50, 0), columnspan=2, pady=10)
+
+    ###############################
+    billButton = Button(taz, text="Back", width=20, height=2, fg="green", bd=10, command=backbutton)
+    billButton.grid(row=1, column=0)
+
+    logoutButton = Button(taz, text="Logout", width=20, height=2, fg="green", bd=10, command=adminLogout)
+    logoutButton.grid(row=1, column=3)
+
+    ###########################
+    ###########################
+
+    itemnameLabel = Label(taz, text="Item name")
+    itemnameLabel.grid(row=2, column=1, padx=20, pady=5)
+
+    itemrateLabel = Label(taz, text="Item Rate")
+    itemrateLabel.grid(row=3, column=1, padx=20, pady=5)
+
+    itemTypeLabel = Label(taz, text="Item Type")
+    itemTypeLabel.grid(row=4, column=1, padx=20, pady=5)
+
+    itemnameEntry = Entry(taz, textvariable=itemnameVar)
+    itemnameEntry.grid(row=2, column=2, padx=20, pady=5)
+
+
+    itemrateEntry = Entry(taz, textvariable=itemrateVar)
+    itemrateEntry.grid(row=3, column=2, padx=20, pady=5)
+
+
+    itemTypeEntry = Entry(taz, textvariable=itemTypeVar)
+    itemTypeEntry.grid(row=4, column=2, padx=20, pady=5)
+
+
+    updateButton = Button(taz, text="UpDate Item", width=20, height=2, fg="green", bd=10, command=updateItem)
+    updateButton.grid(row=6, column=0)
+
+    additemButton = Button(taz, text="Add Item", width=20, height=2, fg="green", bd=10, command=addItem)
+    additemButton.grid(row=6, column=1, columnspan=2)
+
+    deleteButton = Button(taz, text="Delete Item", width=20, height=2, fg="green", bd=10, command=deleteItem)
+    deleteButton.grid(row=6, column=3)
+
+    ################# to display treeview ##############################
+    tazTV.grid(row=7, column=0, columnspan=4,pady=10)
+    scrollBar = Scrollbar(taz, orient="vertical", command=tazTV.yview)
+    scrollBar.grid(row=7, column=4, sticky="NSE")
+    tazTV.configure(yscrollcommand=scrollBar.set)
+
+    tazTV.heading('#0', text="Item Name")
+    tazTV.heading('#1', text="Rate")
+    tazTV.heading('#2', text="Type")
+
+    getIteminTreeView()
+    tazTV.bind("<Double-1>", OnDoubleClick)
+######### logout ###############
+
+def adminLogout():
+    remove_all_widgets()
+    main_heading()
+    admin_login()
+
+
+######### bill generation #########
+
+def billgenerationwindow():
+    pass
 ##### elcome Window ###############
 def welcomewindow():
     remove_all_widgets()
     main_heading()
     welcomeLabel = Label(taz, text="Welcome Admin", font="Arial 20")
-    welcomeLabel.grid(row=1, column=1, padx=(50, 0), columnspan=2, pady=10)
+    welcomeLabel.grid(row=1, column=1, padx=(50, 0), pady=10)
+
+    additemButton = Button(taz, text="Manage Restaurant", width=20, height=2, fg="green", bd=10, command=additemwindow)
+    additemButton.grid(row=2, column=0)
+
+    billButton = Button(taz, text="Bill Generation", width=20, height=2, fg="green", bd=10,
+                        command=billgenerationwindow)
+    billButton.grid(row=2, column=1)
+
+    logoutButton = Button(taz, text="Logout", width=20, height=2, fg="green", bd=10, command=adminLogout)
+    logoutButton.grid(row=2, column=2)
 ########### admin login Process #####
 def adminLoginProcess():
     if usernameVar.get()=='' or passwordVar.get()=='':
@@ -51,7 +239,7 @@ def adminLoginProcess():
         con.close()
         if flag == True:
            welcomewindow()
-           messagebox.showinfo(message='login successful')
+           #messagebox.showinfo(message='login successful')
 
         else:
             messagebox.showerror(title="Login Error", message="Either USerName or Password is Incorrect")
