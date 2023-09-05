@@ -2,13 +2,32 @@ from tkinter import *
 import pymysql
 from tkinter import messagebox
 from tkinter import ttk
+from PIL import Image, ImageTk
 
 taz=Tk()
 h=taz.winfo_screenheight()
 w=taz.winfo_screenwidth()
 #print(h,w)
 taz.title("Seven Star Hotel")
+user=ImageTk.PhotoImage(Image.open('images/user.png'))
+login=ImageTk.PhotoImage(Image.open('images/Login-icon.png'))
+############# validation ######################
+def only_numeric_input(P):
+    # checks if entry's value is an integer or empty and returns an appropriate boolean
+    if P.isdigit() or P == "":  # if a digit was entered or nothing was entered
+        return True
+    return False
 
+def only_char_input(P):
+    # checks if entry's value is an integer or empty and returns an appropriate boolean
+    if P.isalpha() or P == "":  # if a digit was entered or nothing was entered
+        return True
+    return False
+
+
+
+callback = taz.register(only_char_input)  # registers a Tcl to Python callback
+callback1 = taz.register(only_numeric_input)  # registers a Tcl to Pyth
 # ========mainTreeView======================
 tazTV = ttk.Treeview(height=10, columns=('Item Name''Rate','Type'))
 ##### remove all widget #########
@@ -24,7 +43,7 @@ def dbconnect():
     mycursor = con.cursor()
 ######### main heading #######################
 def main_heading():
-    lab = Label(taz, text="             Seven Star Hotel                             ",
+    lab = Label(taz, text="Seven Star Hotel ", width=30,
                 bg="red", fg="black", font=("Comic Sans Ms", "40", "bold"))
     lab.grid(row=0, column=0,columnspan=6)
 
@@ -160,11 +179,11 @@ def additemwindow():
 
     itemnameEntry = Entry(taz, textvariable=itemnameVar)
     itemnameEntry.grid(row=2, column=2, padx=20, pady=5)
-
+    itemnameEntry.configure(validate="key", validatecommand=(callback, "%P"))  # enables validation
 
     itemrateEntry = Entry(taz, textvariable=itemrateVar)
     itemrateEntry.grid(row=3, column=2, padx=20, pady=5)
-
+    itemrateEntry.configure(validate="key", validatecommand=(callback1, "%P"))  # enables validation
 
     itemTypeEntry = Entry(taz, textvariable=itemTypeVar)
     itemTypeEntry.grid(row=4, column=2, padx=20, pady=5)
@@ -180,9 +199,9 @@ def additemwindow():
     deleteButton.grid(row=6, column=3)
 
     ################# to display treeview ##############################
-    tazTV.grid(row=7, column=0, columnspan=4,pady=10)
+    tazTV.grid(row=7, column=0, columnspan=3,pady=10)
     scrollBar = Scrollbar(taz, orient="vertical", command=tazTV.yview)
-    scrollBar.grid(row=7, column=4, sticky="NSE")
+    scrollBar.grid(row=7, column=0, columnspan=3,sticky="NSE")
     tazTV.configure(yscrollcommand=scrollBar.set)
 
     tazTV.heading('#0', text="Item Name")
@@ -254,7 +273,7 @@ usernameVar=StringVar()
 passwordVar=StringVar()
 def admin_login():
     main_heading()
-    loginLabel = Label(taz, text="Admin Login", font="Arial 20")
+    loginLabel = Label(taz, text="Admin Login", image=user, compound=BOTTOM,font="Arial 20")
     loginLabel.grid(row=1, column=1, padx=(50, 0), columnspan=2, pady=10)
 
     usernameLabel = Label(taz, text="Username", font="Arial 15")
@@ -269,7 +288,7 @@ def admin_login():
     passwordEntry = Entry(taz, font="Arial 15", show="*", textvariable=passwordVar)
     passwordEntry.grid(row=3, column=2, padx=20, pady=5)
 
-    btnLogin = Button(taz, text="Login", font="Arial 15", bg="green", fg="white", command=adminLoginProcess)
+    btnLogin = Button(taz, text="Login",image=login, font="Arial 15", fg="white", command=adminLoginProcess)
     btnLogin.grid(row=4, column=1, padx=20, pady=5, columnspan=2)
 
 admin_login()
